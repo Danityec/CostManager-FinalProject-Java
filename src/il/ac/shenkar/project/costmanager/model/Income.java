@@ -64,4 +64,10 @@ public class Income extends Model {
         }
         else return false;
     };
+
+    public ResultSet getCount(){
+        String sql = "SELECT COUNT(*) FROM Income as count";
+        ResultSet rs = db.get(sql);
+        return rs;
+    };
 }

@@ -74,4 +74,10 @@ public class Expense extends Model {
         ResultSet rs = db.get(sql);
         return rs;
     };
+
+    public ResultSet getCount(){
+        String sql = "SELECT COUNT(*) FROM Expense as count";
+        ResultSet rs = db.get(sql);
+        return rs;
+    };
 }
