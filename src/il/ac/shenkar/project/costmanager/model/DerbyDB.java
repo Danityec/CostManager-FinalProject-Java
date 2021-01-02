@@ -9,6 +9,7 @@
 package il.ac.shenkar.project.costmanager.model;
 import java.sql.*;
 
+
 public class DerbyDB implements DB {
     private static Connection connection = null;
     private static Statement statement = null;
@@ -17,95 +18,101 @@ public class DerbyDB implements DB {
     /*
      * The constructor calls the openConnection method so that the connection may be established.
      */
-    public DerbyDB() {
+    public DerbyDB() throws CostManagerException {
         this.openConnection();
     }
 
     /*
      * openConnection method creates the DB and initializes the connection.
      */
-    public void openConnection() {
+    public void openConnection() throws CostManagerException{
         String driver = "org.apache.derby.jdbc.EmbeddedDriver";
         String protocol = "jdbc:derby:CostManager;create=true";
         try {
             Class.forName(driver);
             try {
                 connection = DriverManager.getConnection(protocol);
-            } catch (Exception e) {
-                System.out.println("couldn't create DB");
+            } catch (SQLException e) {
                 e.printStackTrace();
+                throw new CostManagerException ("Problem with create DB connection", e);
             }
             statement = connection.createStatement();
-        } catch (Exception e) {
-            System.out.println("statement failed");
-            e.printStackTrace();
         }
+        catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+            throw new CostManagerException ("statement failed", e);
+        }
+
         System.out.println("DB is connected!");
 
         this.createCategoryTable();
         this.createExpenseTable();
         this.createIncomeTable();
     }
+
     /*
      * closeConnection method closes the connection safely.
      */
-    public void closeConnection() {
+    public void closeConnection() throws CostManagerException{
         try {
             DriverManager.getConnection("jdbc:derby:;shutdown=true");
         } catch (SQLException se) {
             if ("XJ015".equals(se.getSQLState())) {
-                System.out.println("shutdown successful");
+                throw new CostManagerException ("shutdown successful", se);
             } else {
                 se.printStackTrace();
-                System.out.println("shutdown error");
+                throw new CostManagerException ("shutdown error", se);
             }
         }
         if (statement != null)
             try {
                 statement.close();
-            } catch (Exception se) {
+            } catch (SQLException se) {
                 se.printStackTrace();
-                System.out.println("statement couldn't close");
+                throw new CostManagerException ("statement couldn't close", se);
             }
 
         if (connection != null)
             try {
                 connection.close();
-            } catch (Exception se) {
+            } catch (SQLException se) {
                 se.printStackTrace();
-                System.out.println("connection couldn't close");
+                throw new CostManagerException ("Connection couldn't close", se);
             }
 
         if (rs != null)
             try {
                 rs.close();
-            } catch (Exception se) {
+            } catch (SQLException se) {
                 se.printStackTrace();
-                System.out.println("rs couldn't close");
+                throw new CostManagerException ("rs couldn't close", se);
             }
     }
 
     /*
      * createCategoryTable method creates the Category table.
      */
-    public void createCategoryTable() {
+    public void createCategoryTable() throws CostManagerException{
         try {
             statement.execute("create table Category(" +
                     "id INT NOT NULL UNIQUE GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), " +
                     "name VARCHAR(50) UNIQUE)");
         } catch (SQLException se) {
             if ("X0Y32".equals(se.getSQLState())) {
-                System.out.println("Category table exists already");
+                se.printStackTrace();
+                throw new CostManagerException ("Category table exists already", se);
             } else {
                 se.printStackTrace();
-                System.out.println("Problem with creating Category table");
+                throw new CostManagerException ("Problem with creating Category table", se);
             }
         }
     }
+
+
     /*
      * createExpenseTable method creates the Expense table.
      */
-    public void createExpenseTable() {
+    public void createExpenseTable() throws CostManagerException{
         try {
             statement.execute("create table Expense(" +
                     "id INT NOT NULL UNIQUE GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), " +
@@ -116,17 +123,20 @@ public class DerbyDB implements DB {
                     "FOREIGN KEY (category) REFERENCES Category(name))");
         } catch (SQLException se) {
             if ("X0Y32".equals(se.getSQLState())) {
-                System.out.println("Expense table exists already");
+                se.printStackTrace();
+                throw new CostManagerException ("Expense table exists already", se);
             } else {
                 se.printStackTrace();
-                System.out.println("Problem with creating Expense table");
+                throw new CostManagerException ("Problem with creating Expense table", se);
             }
         }
     }
+
+
     /*
      * createIncomeTable method creates the Income table.
      */
-    public void createIncomeTable() {
+    public void createIncomeTable() throws CostManagerException{
         try {
             statement.execute("create table Income(" +
                     "id INT NOT NULL UNIQUE GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1), " +
@@ -135,10 +145,11 @@ public class DerbyDB implements DB {
                     "date DATE)");
         } catch (SQLException se) {
             if ("X0Y32".equals(se.getSQLState())) {
-                System.out.println("Income table exists already");
+                se.printStackTrace();
+                throw new CostManagerException ("Income table exists already", se);
             } else {
                 se.printStackTrace();
-                System.out.println("Problem with creating Income table");
+                throw new CostManagerException ("Problem with creating Income table", se);
             }
         }
     }
@@ -147,30 +158,34 @@ public class DerbyDB implements DB {
      * The get method executes the query it receives as a parameter
      * and returns the corresponding result set.
      */
-    public ResultSet get(String query) {
+    public ResultSet get(String query)throws CostManagerException {
         try {
             rs = statement.executeQuery(query);
             return rs;
         } catch (SQLException se) {
-                se.printStackTrace();
-                return null;
+            se.printStackTrace();
+            return null;
+
         }
     }
+
+
     /*
      * The set method executes the query it receives as a parameter
      * and returns an indication if the action was successful or not.
      */
-    public boolean set(String query) {
+    public boolean set(String query) throws CostManagerException{
         try {
             statement.execute(query);
             return true;
         } catch(SQLException se) {
                 if ("23505".equals(se.getSQLState())) {
-                    System.out.println("This category exists already");
-                    return true;
+                    throw new CostManagerException ("This category exists already", se);
+                    //return true;
                 } else {
                     se.printStackTrace();
-                    return false;
+                    throw new CostManagerException ("false", se);
+                    //return false;
                 }
         }
     }

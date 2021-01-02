@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ModelUnitTest {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws CostManagerException {
         DerbyDB dataBase = new DerbyDB();
         ResultSet rs = null;
 

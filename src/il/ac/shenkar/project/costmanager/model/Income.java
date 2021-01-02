@@ -18,7 +18,8 @@ public class Income extends Model {
     /*
      * function getAll get all data from table Income
      */
-    public ResultSet getAll() {
+    public ResultSet getAll()throws CostManagerException
+    {
         String sql = "SELECT * FROM Income";
         ResultSet rs = db.get(sql);
         return rs;
@@ -26,7 +27,8 @@ public class Income extends Model {
     /*
      * function getByID get data from table Income by id specific
      */
-    public ResultSet getByID(int id) {
+    public ResultSet getByID(int id)throws CostManagerException
+    {
         String sql = "SELECT * FROM Income WHERE id = " + id;
         ResultSet rs = db.get(sql);
         return rs;
@@ -34,7 +36,8 @@ public class Income extends Model {
     /*
      * function add, adding to table Income a new income
      */
-    public boolean add(String arr[]) {
+    public boolean add(String arr[])throws CostManagerException
+    {
         String sql = "INSERT INTO Income (description, \"sum\", date) VALUES ('" + arr[0] + "', " + Double.parseDouble(arr[1]) + ", '" + arr[2] + "')";
         if (db.set(sql)) {
             System.out.println("The income information has add to table");
@@ -45,7 +48,8 @@ public class Income extends Model {
     /*
      * function delete, deleted row of data from table Income with id specific.
      */
-    public boolean delete(int id) {
+    public boolean delete(int id)throws CostManagerException
+    {
         String sql = "DELETE FROM Income WHERE id = " + id  ;
         if (db.set(sql)) {
             System.out.println("The income has been delete");
@@ -56,7 +60,8 @@ public class Income extends Model {
     /*
      * function update, doing updates on data from table Income with id specific
      */
-    public boolean update(int id, String arr[]) {
+    public boolean update(int id, String arr[]) throws CostManagerException
+    {
         String sql = "UPDATE Income SET description = '" + arr[0] + "', \"sum\" = "+ Double.parseDouble(arr[1]) + ", date = '"+ arr[2] +"' WHERE id = " + id ;
         if (db.set(sql)) {
             System.out.println("The category information has update in table");
@@ -65,7 +70,8 @@ public class Income extends Model {
         else return false;
     };
 
-    public ResultSet getCount(){
+    public ResultSet getCount()throws CostManagerException
+    {
         String sql = "SELECT COUNT(*) FROM Income as count";
         ResultSet rs = db.get(sql);
         return rs;

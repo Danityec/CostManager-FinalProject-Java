@@ -19,7 +19,8 @@ public class Expense extends Model {
     /*
      * function getAll get all data from table Expense.
      */
-    public ResultSet getAll(){
+    public ResultSet getAll()throws CostManagerException
+    {
         String sql = "SELECT * FROM Expense";
         ResultSet rs = db.get(sql);
         return rs;
@@ -27,7 +28,8 @@ public class Expense extends Model {
     /*
      * function getByID get data from table Expense by id specific.
      */
-    public ResultSet getByID(int id){
+    public ResultSet getByID(int id)throws CostManagerException
+    {
         String sql = "SELECT * FROM Expense WHERE id = " + id;
         ResultSet rs = db.get(sql);
         return rs;
@@ -35,7 +37,8 @@ public class Expense extends Model {
     /*
      * function add, adding to table Expense a new expense.
      */
-    public boolean add(String arr[]){
+    public boolean add(String arr[])throws CostManagerException
+    {
         String sql = "INSERT INTO Expense (description, \"sum\", date, category) VALUES ('" + arr[0] + "', " + Double.parseDouble(arr[1]) + ", '" + arr[2] + "', '" + arr[3] + "')" ;
         if (db.set(sql)) {
             System.out.println("The expense information has been added to table");
@@ -46,7 +49,8 @@ public class Expense extends Model {
     /*
      * function delete, deleted row of data from table Expense with id specific.
      */
-    public boolean delete(int id){
+    public boolean delete(int id)throws CostManagerException
+    {
         String sql = "DELETE FROM Expense WHERE id=" + id  ;
         if (db.set(sql)) {
             System.out.println("The expense has been deleted");
@@ -57,7 +61,8 @@ public class Expense extends Model {
     /*
      * function update, doing updates on data from table Expense with id specific.
      */
-    public boolean update(int id, String arr[]){
+    public boolean update(int id, String arr[])throws CostManagerException
+    {
         String sql = "UPDATE Expense SET description = '" + arr[0] + "', \"sum\" = "+ Double.parseDouble(arr[1]) + ", date = '" + arr[2] + "', category = '" + arr[3] +"' WHERE id= "+id ;
 
         if (db.set(sql)) {
@@ -69,13 +74,15 @@ public class Expense extends Model {
     /*
      * function getBetweenDates, get data from table Expense between 2 dates.
      */
-    public ResultSet getBetweenDates(String date1, String date2){
+    public ResultSet getBetweenDates(String date1, String date2)throws CostManagerException
+    {
         String sql = "SELECT * FROM Expense WHERE date BETWEEN '" + date1 + "' AND '" + date2 + "'";
         ResultSet rs = db.get(sql);
         return rs;
     };
 
-    public ResultSet getCount(){
+    public ResultSet getCount()throws CostManagerException
+    {
         String sql = "SELECT COUNT(*) FROM Expense as count";
         ResultSet rs = db.get(sql);
         return rs;

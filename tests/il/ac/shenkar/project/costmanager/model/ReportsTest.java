@@ -20,7 +20,7 @@ class ReportsTest {
     private Reports reports;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws CostManagerException {
         dataBase = new DerbyDB();
         rs = null;
         expense = new Expense(dataBase);

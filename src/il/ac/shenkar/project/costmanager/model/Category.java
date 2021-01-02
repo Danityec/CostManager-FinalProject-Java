@@ -7,6 +7,7 @@
 
 package il.ac.shenkar.project.costmanager.model;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class Category extends Model {
     /*
@@ -16,18 +17,22 @@ public class Category extends Model {
         super();
         this.db = db;
     }
+
     /*
      * function getAll get all data from table Category
      */
-    public ResultSet getAll(){
-        String sql = "SELECT * FROM Category";
-        ResultSet rs = db.get(sql);
-        return rs;
+    public ResultSet getAll() throws CostManagerException
+    {
+            String sql = "SELECT * FROM Category";
+            ResultSet rs = db.get(sql);
+            return rs;
     };
+
     /*
      * function getByID get data from table Category by id specific
      */
-    public ResultSet getByID(int id){
+    public ResultSet getByID(int id) throws CostManagerException
+    {
         String sql = "SELECT * FROM Category WHERE id = " + id;
         ResultSet rs = db.get(sql);
         return rs;
@@ -36,7 +41,8 @@ public class Category extends Model {
     /*
      * function add, adding to table Category a new Category
      */
-    public boolean add(String arr[]) {
+    public boolean add(String arr[])throws CostManagerException
+    {
         String sql = "INSERT INTO Category (name) " + "VALUES ('" + arr[0] + "')";
         if (db.set(sql)) {
             System.out.println("The new category was added to table");
@@ -49,7 +55,8 @@ public class Category extends Model {
     /*
      * function delete, deleted row of data from table Category with id specific.
      */
-    public boolean delete(int id){
+    public boolean delete(int id) throws CostManagerException
+    {
         String sql = "DELETE FROM Category WHERE id=" + id  ;
         if (db.set(sql)) {
             System.out.println("The category has been delete");
@@ -60,7 +67,8 @@ public class Category extends Model {
     /*
      * function update, doing updates on data from table Category with id specific
      */
-    public boolean update(int id, String arr[]){
+    public boolean update(int id, String arr[]) throws CostManagerException
+    {
         String sql = "UPDATE Category SET name = '" + arr[0] + "' WHERE id = " + id ;
         if (db.set(sql)) {
             System.out.println("The category information was updated in table");

@@ -31,7 +31,7 @@ public class Reports {
      * the values are the sum of the expense in this category.
      * This method will be used for both "list report" and for "pie chart report"
      */
-    public Map<String, Double> report(String date1, String date2) {
+    public Map<String, Double> report(String date1, String date2) throws CostManagerException{
         Map<String, Double> report = new HashMap<String, Double>();
 
         ResultSet rs = expense.getBetweenDates(date1, date2);
@@ -47,8 +47,8 @@ public class Reports {
                 report.put(categoryName, expenseSum);
             }
         } catch (Exception e) {
-            System.out.println("error with rs - expense");
             e.printStackTrace();
+            throw new CostManagerException ("error with rs - expense", e);
         }
         return report;
     }
@@ -57,7 +57,7 @@ public class Reports {
      * The balance method gets the data about expenses and incomes.
      * The method returns the value of the sum of all incomes, minus the sum of all expenses.
      */
-    public double balance() {
+    public double balance()throws CostManagerException {
         ResultSet rs = expense.getAll();
         double expenseSum = 0;
 
@@ -66,7 +66,7 @@ public class Reports {
                 expenseSum += rs.getDouble("sum");
             }
         } catch (Exception e) {
-            System.out.println("error with expenseRS");
+            throw new CostManagerException ("error with expenseRS");
         }
 
         rs = income.getAll();
@@ -77,7 +77,7 @@ public class Reports {
                 incomeSum += rs.getDouble("sum");
             }
         } catch (Exception e) {
-            System.out.println("error with incomeRS");
+            throw new CostManagerException ("error with incomeRS");
         }
         double balance = (incomeSum - expenseSum);
         balance = Double.parseDouble(new DecimalFormat("#.##").format(balance));

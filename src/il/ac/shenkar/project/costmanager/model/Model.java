@@ -23,9 +23,9 @@ public abstract class Model {
      * function update, doing updates on data from database with id specific
      */
 
-    public abstract ResultSet getAll();
-    public abstract ResultSet getByID(int id);
-    public abstract boolean add(String arr[]) ;
-    public abstract boolean delete(int id);
-    public abstract boolean update(int id, String arr[]);
+    public abstract ResultSet getAll() throws CostManagerException;
+    public abstract ResultSet getByID(int id)throws CostManagerException;
+    public abstract boolean add(String arr[])throws CostManagerException ;
+    public abstract boolean delete(int id)throws CostManagerException;
+    public abstract boolean update(int id, String arr[])throws CostManagerException;
 }
