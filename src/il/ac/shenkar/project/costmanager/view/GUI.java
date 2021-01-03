@@ -9,6 +9,7 @@ import java.sql.Date;
 import java.sql.ResultSet;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Map;
 
 public class GUI implements IView {
     private JFrame frame;
@@ -123,7 +124,7 @@ public class GUI implements IView {
         String sign = "+";
         if (balanceValue < 0)
             sign = "-";
-        balance.setText("Balance: " + balanceValue + "$" + sign + "\n");
+        balance.setText("Balance: " + balanceValue + "$ " + sign + "\n");
     }
 
     public void expensePage() {
@@ -197,6 +198,15 @@ public class GUI implements IView {
 
         JButton addExpenseBtn = new JButton("Add New Expense");
         contentPanel.add("South", addExpenseBtn);
+
+        ActionListener addAction = new ActionListener() {
+            public void actionPerformed(ActionEvent event) {
+                try {
+                    addExpense();
+                } catch (Exception e) {}
+            }
+        };
+        addExpenseBtn.addActionListener(addAction);
     }
 
     public void incomePage() {
@@ -270,41 +280,15 @@ public class GUI implements IView {
         contentPanel.add("East", buttonSection);
         JButton addIncomeBtn = new JButton("Add New Income");
         contentPanel.add("South", addIncomeBtn);
-    }
 
-    public void reportsPage() {
-        title.setText("Reports");
-        contentPanel.removeAll();
-
-
-        JPanel formArea = new JPanel();
-        formArea.setLayout(new GridLayout(3,1,5,10));
-        JPanel firstDateArea = new JPanel();
-        firstDateArea.setLayout(new GridLayout(2,1,5,5));
-        JPanel secondDateArea = new JPanel();
-        secondDateArea.setLayout(new GridLayout(2,1,5,5));
-        JPanel buttonsArea = new JPanel();
-
-        JLabel firstDateLbl = new JLabel("First Date");
-        JTextField firstDate = new JTextField();
-        firstDateArea.add(firstDateLbl);
-        firstDateArea.add(firstDate);
-        JLabel secondDateLbl = new JLabel("Second Date");
-        JTextField secondDate = new JTextField();
-        secondDateArea.add(secondDateLbl);
-        secondDateArea.add(secondDate);
-
-        JButton listReport = new JButton("List Report");
-        JButton pieChartReport = new JButton("Pie Chart Report");
-        buttonsArea.add(listReport);
-        buttonsArea.add(pieChartReport);
-
-        formArea.setBackground(Color.lightGray);
-        formArea.add(firstDateArea);
-        formArea.add(secondDateArea);
-        formArea.add(buttonsArea);
-        contentPanel.add("Center", formArea);
-
+        ActionListener addAction = new ActionListener() {
+            public void actionPerformed(ActionEvent event) {
+                try {
+                    addIncome();
+                } catch (Exception e) {}
+            }
+        };
+        addIncomeBtn.addActionListener(addAction);
     }
 
     public void expenseViewPage(int id){
@@ -409,7 +393,7 @@ public class GUI implements IView {
             }
         };
         deleteItem.addActionListener(deleteAction);
-    }
+    }           // EDIT
 
     public void incomeViewPage(int id){
         contentPanel.removeAll();
@@ -484,7 +468,106 @@ public class GUI implements IView {
             }
         };
         deleteItem.addActionListener(deleteAction);
+    }            // EDIT
+
+    public void addExpense() {
+
     }
 
+    public void addIncome() {
 
+    }
+
+    public void reportsPage() {
+        title.setText("Reports");
+        contentPanel.removeAll();
+        frame.setSize(500, 250);
+
+        JPanel formArea = new JPanel();
+        formArea.setLayout(new GridLayout(3,1,0,0));
+        JPanel firstDateArea = new JPanel();
+        firstDateArea.setLayout(new GridLayout(2,1,0,0));
+        JPanel secondDateArea = new JPanel();
+        secondDateArea.setLayout(new GridLayout(2,1,0,0));
+        JPanel buttonsArea = new JPanel();
+
+        JLabel firstDateLbl = new JLabel("First Date (MM/DD/YYYY)");
+        JTextField firstDate = new JTextField();
+        firstDateArea.add(firstDateLbl);
+        firstDateArea.add(firstDate);
+        JLabel secondDateLbl = new JLabel("Second Date (MM/DD/YYYY)");
+        JTextField secondDate = new JTextField();
+        secondDateArea.add(secondDateLbl);
+        secondDateArea.add(secondDate);
+
+        JButton listReport = new JButton("List Report");
+        JButton pieChartReport = new JButton("Pie Chart Report");
+        buttonsArea.add(listReport);
+        buttonsArea.add(pieChartReport);
+
+        formArea.setBackground(Color.lightGray);
+        formArea.add(firstDateArea);
+        formArea.add(secondDateArea);
+        formArea.add(buttonsArea);
+        contentPanel.add("Center", formArea);
+
+        ActionListener listAction = new ActionListener() {
+            public void actionPerformed(ActionEvent event) {
+                try {
+                    String date1 = firstDate.getText();
+                    String date2 = secondDate.getText();
+                    Map<String, Double> reportMap = reports.report(date1, date2);
+                    listReportPage(reportMap);
+                } catch (Exception e) {}
+            }
+        };
+        listReport.addActionListener(listAction);
+
+        ActionListener pieChartAction = new ActionListener() {
+            public void actionPerformed(ActionEvent event) {
+                try {
+                    String date1 = firstDate.getText();
+                    String date2 = secondDate.getText();
+                    Map<String, Double> reportMap = reports.report(date1, date2);
+                    pieChartReportPage(reportMap);
+                } catch (Exception e) {}
+
+            }
+        };
+        pieChartReport.addActionListener(pieChartAction);
+    }
+
+    public void listReportPage(Map<String, Double> reportMap) {
+        title.setText("List Report");
+        contentPanel.removeAll();
+
+        int count = reportMap.size();
+        int height = 130 + count*16;
+        frame.setSize(600, height);
+
+        String[][] table = new String[count+1][];
+        String[] columnNames = { "CATEGORY", "SUM" };
+        table[0] = columnNames;
+        int index = 1;
+        int j = 0;
+        String[] categories = reportMap.keySet().toArray(new String[0]);
+        Double[] sums = reportMap.values().toArray(new Double[0]);
+
+        while(index < count+1) {
+            table[index] = new String[2];
+            table[index][0] = categories[j];
+            table[index][1] = String.valueOf(sums[j]);
+            index += 1;
+            j += 1;
+        }
+        JTable reportList = new JTable(table, columnNames);
+        reportList.setBounds(30, 40, 200, 300);
+        contentPanel.add(reportList);
+        reportList.setBackground(Color.lightGray);
+    }
+
+    public void pieChartReportPage(Map<String, Double> reportMap) {
+        title.setText("Pie Chart Report");
+        contentPanel.removeAll();
+    }
 }
