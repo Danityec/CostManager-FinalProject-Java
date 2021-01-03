@@ -48,7 +48,10 @@ class ReportsTest {
         Expected.put("Clothes Shopping", 808.2);
 
         Map<String, Double> Actual = new HashMap<String, Double>();
-        Actual = reports.report(dateA, dateB);
+        try {
+            Actual = reports.report(dateA, dateB);
+        } catch (Exception e) {}
+
 
         assertEquals(Expected, Actual);
     }
@@ -56,7 +59,11 @@ class ReportsTest {
     @Test
     void balance() {
         double Expected = 41604.4;
-        double Actual = reports.balance();
+        double Actual = 0;
+        try {
+            Actual = reports.balance();
+        } catch (Exception e) {}
+
 
         assertEquals(Expected, Actual, 0.02);
     }

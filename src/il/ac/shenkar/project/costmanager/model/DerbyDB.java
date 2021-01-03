@@ -58,7 +58,8 @@ public class DerbyDB implements DB {
             DriverManager.getConnection("jdbc:derby:;shutdown=true");
         } catch (SQLException se) {
             if ("XJ015".equals(se.getSQLState())) {
-                throw new CostManagerException ("shutdown successful", se);
+//                throw new CostManagerException ("shutdown successful");
+//                System.out.println("shutdown successful");
             } else {
                 se.printStackTrace();
                 throw new CostManagerException ("shutdown error", se);
@@ -99,8 +100,8 @@ public class DerbyDB implements DB {
                     "name VARCHAR(50) UNIQUE)");
         } catch (SQLException se) {
             if ("X0Y32".equals(se.getSQLState())) {
-                se.printStackTrace();
-                throw new CostManagerException ("Category table exists already", se);
+//                se.printStackTrace();
+//                throw new CostManagerException ("Category table exists already");
             } else {
                 se.printStackTrace();
                 throw new CostManagerException ("Problem with creating Category table", se);
@@ -123,8 +124,8 @@ public class DerbyDB implements DB {
                     "FOREIGN KEY (category) REFERENCES Category(name))");
         } catch (SQLException se) {
             if ("X0Y32".equals(se.getSQLState())) {
-                se.printStackTrace();
-                throw new CostManagerException ("Expense table exists already", se);
+//                se.printStackTrace();
+//                throw new CostManagerException ("Expense table exists already");
             } else {
                 se.printStackTrace();
                 throw new CostManagerException ("Problem with creating Expense table", se);
@@ -145,8 +146,8 @@ public class DerbyDB implements DB {
                     "date DATE)");
         } catch (SQLException se) {
             if ("X0Y32".equals(se.getSQLState())) {
-                se.printStackTrace();
-                throw new CostManagerException ("Income table exists already", se);
+//                se.printStackTrace();
+//                throw new CostManagerException ("Income table exists already");
             } else {
                 se.printStackTrace();
                 throw new CostManagerException ("Problem with creating Income table", se);
