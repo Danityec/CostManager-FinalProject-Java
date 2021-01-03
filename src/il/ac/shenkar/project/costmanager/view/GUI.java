@@ -455,6 +455,36 @@ public class GUI implements IView {
                 String[] newInfo = {"hhh"};
                 try {
                     income.update(id, newInfo);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    
                 } catch (Exception e) {}
             }
         };
