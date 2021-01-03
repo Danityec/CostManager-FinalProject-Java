@@ -484,7 +484,7 @@ public class GUI implements IView {
 
 
 
-                    
+
                 } catch (Exception e) {}
             }
         };
@@ -501,10 +501,115 @@ public class GUI implements IView {
     }            // EDIT
 
     public void addExpense() {
+        title.setText("New expense");
+        title.setFont(new Font("Comic Sans MS", Font.PLAIN, 20));
+        contentPanel.removeAll();
+        frame.setSize(500, 250);
+        JPanel formArea = new JPanel();
+        formArea.setLayout(new GridLayout(3,2,0,0));
+        
+
+        JPanel firstDateArea = new JPanel();
+        firstDateArea.setLayout(new GridLayout(2,1,0,0));
+        JPanel secondDataArea = new JPanel();
+        secondDataArea.setLayout(new GridLayout(2,1,0,0));
+        JPanel thirdDataArea = new JPanel();
+        thirdDataArea.setLayout(new GridLayout(2,1,0,0));
+        JPanel fourDataArea = new JPanel();
+        fourDataArea.setLayout(new GridLayout(2,1,0,0));
+        JPanel fiveDataArea = new JPanel();
+        fiveDataArea.setLayout(new GridLayout(2,1,0,0));
+
+        JPanel buttonsArea = new JPanel();
+        buttonsArea.setBounds(30, 40, 200, 300);
+        buttonsArea.setLayout(new GridLayout(1,1,0,0));
+        JButton button = new JButton("Adding Expense");
+        button.setFont(new Font("Comic Sans MS", Font.PLAIN, 20));
+
+
+
+        JLabel DescriptionLbl = new JLabel("Description");
+        JTextField Description = new JTextField();
+        DescriptionLbl.setFont(new Font("Comic Sans MS", Font.PLAIN, 20));
+        firstDateArea.add(DescriptionLbl);
+        firstDateArea.add(Description);
+
+        JLabel DateLbl = new JLabel("Date (MM/DD/YYYY)");
+        JTextField Date = new JTextField();
+        DateLbl.setFont(new Font("Comic Sans MS", Font.PLAIN, 20));
+        secondDataArea.add(DateLbl);
+        secondDataArea.add(Date);
+
+        JLabel CostLbl = new JLabel("Cost");
+        JTextField Cost = new JTextField();
+        CostLbl.setFont(new Font("Comic Sans MS", Font.PLAIN, 20));
+        thirdDataArea.add(CostLbl);
+        thirdDataArea.add(Cost);
+
+        JLabel CategoryLbl = new JLabel("Category");
+        JTextField Category = new JTextField();
+        CategoryLbl.setFont(new Font("Comic Sans MS", Font.PLAIN, 20));
+        firstDateArea.add(CategoryLbl);
+        firstDateArea.add(Category);
+
+        formArea.add(firstDateArea);
+        formArea.add(secondDataArea);
+        formArea.add(thirdDataArea);
+        formArea.add(buttonsArea);
+
+        contentPanel.add("South", button);
+        contentPanel.add("Center", formArea);
+
 
     }
 
     public void addIncome() {
+        title.setText("New income");
+        contentPanel.removeAll();
+        frame.setSize(500, 250);
+
+        JPanel formArea = new JPanel();
+        formArea.setLayout(new GridLayout(3,2,0,0));
+
+        JPanel firstDateArea = new JPanel();
+        firstDateArea.setLayout(new GridLayout(2,1,0,0));
+        JPanel secondDataArea = new JPanel();
+        secondDataArea.setLayout(new GridLayout(2,1,0,0));
+        JPanel thirdDataArea = new JPanel();
+        thirdDataArea.setLayout(new GridLayout(2,1,0,0));
+        JPanel fourDataArea = new JPanel();
+        fourDataArea.setLayout(new GridLayout(2,1,0,0));
+
+        JPanel buttonsArea = new JPanel();
+        buttonsArea.setBounds(30, 40, 200, 300);
+        buttonsArea.setLayout(new GridLayout(1,1,0,0));
+        JButton button = new JButton("Adding Income");
+
+
+        JLabel DescriptionLbl = new JLabel("Description");
+        JTextField Description = new JTextField();
+        firstDateArea.add(DescriptionLbl);
+        firstDateArea.add(Description);
+
+        JLabel DateLbl = new JLabel("Date (MM/DD/YYYY)");
+        JTextField Date = new JTextField();
+        secondDataArea.add(DateLbl);
+        secondDataArea.add(Date);
+
+        JLabel CostLbl = new JLabel("Cost");
+        JTextField Cost = new JTextField();
+        thirdDataArea.add(CostLbl);
+        thirdDataArea.add(Cost);
+
+
+        formArea.add(firstDateArea);
+        formArea.add(secondDataArea);
+        formArea.add(thirdDataArea);
+        formArea.add(buttonsArea);
+
+        contentPanel.add("South", button);
+        contentPanel.add("Center", formArea);
+
 
     }
 

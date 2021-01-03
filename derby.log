@@ -1,11 +1,11 @@
 ----------------------------------------------------------------
-Sun Jan 03 17:01:40 IST 2021:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.14.2.0 - (1828579): instance a816c00e-0176-c8c4-a8be-00000f37a388 
-on database directory C:\Users\kreny\Documents\Software Engineering Degree\Third Year\First Semester\Java\Cost-Manager-JAVA\CostManager with class loader jdk.internal.loader.ClassLoaders$AppClassLoader@3764951d 
-Loaded from file:/C:/Program%20Files/db-derby-10.14.2.0-bin/lib/derby.jar
+Mon Jan 04 00:59:22 IST 2021:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.14.2.0 - (1828579): instance a816c00e-0176-ca79-fe86-00000710a4f0 
+on database directory C:\Users\danit\Documents\Danit's Documents\Shenkar\Third year\First Semester\java\Cost-Manager-JAVA\CostManager with class loader jdk.internal.loader.ClassLoaders$AppClassLoader@3764951d 
+Loaded from file:/C:/Program%20Files%20(x86)/db-derby-10.14.2.0-bin/lib/derby.jar
 java.vendor=Oracle Corporation
 java.runtime.version=15.0.1+9-18
-user.dir=C:\Users\kreny\Documents\Software Engineering Degree\Third Year\First Semester\Java\Cost-Manager-JAVA
+user.dir=C:\Users\danit\Documents\Danit's Documents\Shenkar\Third year\First Semester\java\Cost-Manager-JAVA
 os.name=Windows 10
 os.arch=amd64
 os.version=10.0
