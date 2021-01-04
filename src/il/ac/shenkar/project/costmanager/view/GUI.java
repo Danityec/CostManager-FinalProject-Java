@@ -1,6 +1,7 @@
 package il.ac.shenkar.project.costmanager.view;
 
 import il.ac.shenkar.project.costmanager.model.*;
+import org.apache.derby.client.am.stmtcache.JDBCStatementCache;
 
 import javax.swing.*;
 import java.awt.*;
@@ -352,34 +353,7 @@ public class GUI implements IView {
 
         ActionListener editAction = new ActionListener() {
             public void actionPerformed(ActionEvent event) {
-                JPanel updateForm = new JPanel();
-                contentPanel.add("South", updateForm);
-
-                JLabel nameLbl = new JLabel("Name");
-                JLabel categoryLbl = new JLabel("Category");
-                JLabel dateLbl = new JLabel("Date");
-                JLabel sumLbl = new JLabel("Sum");
-                JTextField nameTxt = new JTextField();
-                JTextField categoryTxt = new JTextField();
-                JTextField dateTxt = new JTextField();
-                JTextField sumTxt = new JTextField();
-                JButton submit = new JButton("Submit");
-
-                updateForm.add(nameLbl);
-                updateForm.add(nameTxt);
-                updateForm.add(categoryLbl);
-                updateForm.add(categoryTxt);
-                updateForm.add(dateLbl);
-                updateForm.add(dateTxt);
-                updateForm.add(sumLbl);
-                updateForm.add(sumTxt);
-                updateForm.add(submit);
-
-                String[] newInfo = {"hhh"};
-                try {
-                    expense.update(id, newInfo);
-                } catch (Exception e) {
-                }
+                updateExpense(id);
             }
         };
         editItem.addActionListener(editAction);
@@ -393,7 +367,7 @@ public class GUI implements IView {
             }
         };
         deleteItem.addActionListener(deleteAction);
-    }           // EDIT
+    }
 
     public void incomeViewPage(int id){
         contentPanel.removeAll();
@@ -449,43 +423,9 @@ public class GUI implements IView {
             e.printStackTrace();
         }
 
-
         ActionListener editAction = new ActionListener() {
             public void actionPerformed(ActionEvent event) {
-                String[] newInfo = {"hhh"};
-                try {
-                    income.update(id, newInfo);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                } catch (Exception e) {}
+                updateIncome(id);
             }
         };
         editItem.addActionListener(editAction);
@@ -498,119 +438,239 @@ public class GUI implements IView {
             }
         };
         deleteItem.addActionListener(deleteAction);
-    }            // EDIT
+    }
 
     public void addExpense() {
-        title.setText("New expense");
-        title.setFont(new Font("Comic Sans MS", Font.PLAIN, 20));
+        title.setText("New Expense");
+//        title.setFont(new Font("Comic Sans MS", Font.PLAIN, 20));
+
         contentPanel.removeAll();
-        frame.setSize(500, 250);
+        frame.setSize(500, 350);
+
         JPanel formArea = new JPanel();
-        formArea.setLayout(new GridLayout(3,2,0,0));
-        
+        formArea.setLayout(new GridLayout(9,1,0,0));
 
-        JPanel firstDateArea = new JPanel();
-        firstDateArea.setLayout(new GridLayout(2,1,0,0));
-        JPanel secondDataArea = new JPanel();
-        secondDataArea.setLayout(new GridLayout(2,1,0,0));
-        JPanel thirdDataArea = new JPanel();
-        thirdDataArea.setLayout(new GridLayout(2,1,0,0));
-        JPanel fourDataArea = new JPanel();
-        fourDataArea.setLayout(new GridLayout(2,1,0,0));
-        JPanel fiveDataArea = new JPanel();
-        fiveDataArea.setLayout(new GridLayout(2,1,0,0));
+        JLabel descriptionLbl = new JLabel("Description");
+        JTextField descriptionTxt = new JTextField();
 
-        JPanel buttonsArea = new JPanel();
-        buttonsArea.setBounds(30, 40, 200, 300);
-        buttonsArea.setLayout(new GridLayout(1,1,0,0));
-        JButton button = new JButton("Adding Expense");
-        button.setFont(new Font("Comic Sans MS", Font.PLAIN, 20));
+        JLabel categoryLbl = new JLabel("Category");
+        JTextField categoryTxt = new JTextField();
 
+        JLabel dateLbl = new JLabel("Date (MM/DD/YYYY)");
+        JTextField dateTxt = new JTextField();
 
+        JLabel sumLbl = new JLabel("Cost");
+        JTextField sumTxt = new JTextField();
 
-        JLabel DescriptionLbl = new JLabel("Description");
-        JTextField Description = new JTextField();
-        DescriptionLbl.setFont(new Font("Comic Sans MS", Font.PLAIN, 20));
-        firstDateArea.add(DescriptionLbl);
-        firstDateArea.add(Description);
+        JButton submitBtn = new JButton("Add Expense");
 
-        JLabel DateLbl = new JLabel("Date (MM/DD/YYYY)");
-        JTextField Date = new JTextField();
-        DateLbl.setFont(new Font("Comic Sans MS", Font.PLAIN, 20));
-        secondDataArea.add(DateLbl);
-        secondDataArea.add(Date);
+        formArea.add(descriptionLbl);
+        formArea.add(descriptionTxt);
+        formArea.add(categoryLbl);
+        formArea.add(categoryTxt);
+        formArea.add(dateLbl);
+        formArea.add(dateTxt);
+        formArea.add(sumLbl);
+        formArea.add(sumTxt);
+        formArea.add(submitBtn);
 
-        JLabel CostLbl = new JLabel("Cost");
-        JTextField Cost = new JTextField();
-        CostLbl.setFont(new Font("Comic Sans MS", Font.PLAIN, 20));
-        thirdDataArea.add(CostLbl);
-        thirdDataArea.add(Cost);
-
-        JLabel CategoryLbl = new JLabel("Category");
-        JTextField Category = new JTextField();
-        CategoryLbl.setFont(new Font("Comic Sans MS", Font.PLAIN, 20));
-        firstDateArea.add(CategoryLbl);
-        firstDateArea.add(Category);
-
-        formArea.add(firstDateArea);
-        formArea.add(secondDataArea);
-        formArea.add(thirdDataArea);
-        formArea.add(buttonsArea);
-
-        contentPanel.add("South", button);
         contentPanel.add("Center", formArea);
 
-
+        ActionListener addAction = new ActionListener() {
+            public void actionPerformed(ActionEvent event) {
+                String description = descriptionTxt.getText();
+                String category = categoryTxt.getText();
+                String date = dateTxt.getText();
+                String sum = sumTxt.getText();
+                String[] newInfo = {description, category, date, sum};
+                try {
+                    expense.add(newInfo);
+                } catch (Exception e) {}
+            }
+        };
+        submitBtn.addActionListener(addAction);
     }
 
     public void addIncome() {
         title.setText("New income");
         contentPanel.removeAll();
-        frame.setSize(500, 250);
+        frame.setSize(500, 300);
 
         JPanel formArea = new JPanel();
-        formArea.setLayout(new GridLayout(3,2,0,0));
+        formArea.setLayout(new GridLayout(7,1,0,0));
 
-        JPanel firstDateArea = new JPanel();
-        firstDateArea.setLayout(new GridLayout(2,1,0,0));
-        JPanel secondDataArea = new JPanel();
-        secondDataArea.setLayout(new GridLayout(2,1,0,0));
-        JPanel thirdDataArea = new JPanel();
-        thirdDataArea.setLayout(new GridLayout(2,1,0,0));
-        JPanel fourDataArea = new JPanel();
-        fourDataArea.setLayout(new GridLayout(2,1,0,0));
+        JLabel descriptionLbl = new JLabel("Description");
+        JTextField descriptionTxt = new JTextField();
 
-        JPanel buttonsArea = new JPanel();
-        buttonsArea.setBounds(30, 40, 200, 300);
-        buttonsArea.setLayout(new GridLayout(1,1,0,0));
-        JButton button = new JButton("Adding Income");
+        JLabel dateLbl = new JLabel("Date (MM/DD/YYYY)");
+        JTextField dateTxt = new JTextField();
 
+        JLabel sumLbl = new JLabel("Cost");
+        JTextField sumTxt = new JTextField();
 
-        JLabel DescriptionLbl = new JLabel("Description");
-        JTextField Description = new JTextField();
-        firstDateArea.add(DescriptionLbl);
-        firstDateArea.add(Description);
+        JButton submitBtn = new JButton("Add Income");
 
-        JLabel DateLbl = new JLabel("Date (MM/DD/YYYY)");
-        JTextField Date = new JTextField();
-        secondDataArea.add(DateLbl);
-        secondDataArea.add(Date);
+        formArea.add(descriptionLbl);
+        formArea.add(descriptionTxt);
+        formArea.add(dateLbl);
+        formArea.add(dateTxt);
+        formArea.add(sumLbl);
+        formArea.add(sumTxt);
+        formArea.add(submitBtn);
 
-        JLabel CostLbl = new JLabel("Cost");
-        JTextField Cost = new JTextField();
-        thirdDataArea.add(CostLbl);
-        thirdDataArea.add(Cost);
-
-
-        formArea.add(firstDateArea);
-        formArea.add(secondDataArea);
-        formArea.add(thirdDataArea);
-        formArea.add(buttonsArea);
-
-        contentPanel.add("South", button);
         contentPanel.add("Center", formArea);
 
+        ActionListener addAction = new ActionListener() {
+            public void actionPerformed(ActionEvent event) {
+                String description = descriptionTxt.getText();
+                String date = dateTxt.getText();
+                String sum = sumTxt.getText();
+                String[] newInfo = {description, date, sum};
+                try {
+                    income.add(newInfo);
+                } catch (Exception e) {}
+            }
+        };
+        submitBtn.addActionListener(addAction);
+    }
 
+    public void updateExpense(int id) {
+        title.setText("Update Expense");
+        contentPanel.removeAll();
+        frame.setSize(500, 350);
+
+        String description = "";
+        String category = "";
+        String strDate = "";
+        String strSum = "";
+
+        try {
+            rs = expense.getByID(id);
+        } catch (Exception e) {}
+        try {
+            while(rs.next()) {
+                description = rs.getString("description");
+
+                category = rs.getString("category");
+
+                Date date = rs.getDate("date");
+                DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                strDate = dateFormat.format(date);
+
+                double sum = rs.getDouble("sum");
+                strSum=Double.toString(sum);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        JPanel formArea = new JPanel();
+        formArea.setLayout(new GridLayout(9,1,0,0));
+
+        JLabel descriptionLbl = new JLabel("Description");
+        JTextField descriptionTxt = new JTextField(description);
+
+        JLabel categoryLbl = new JLabel("Category");
+        JTextField categoryTxt = new JTextField(category);
+
+        JLabel dateLbl = new JLabel("Date (MM/DD/YYYY)");
+        JTextField dateTxt = new JTextField(strDate);
+
+        JLabel sumLbl = new JLabel("Cost");
+        JTextField sumTxt = new JTextField(strSum);
+
+        JButton submitBtn = new JButton("Update Expense");
+
+        formArea.add(descriptionLbl);
+        formArea.add(descriptionTxt);
+        formArea.add(categoryLbl);
+        formArea.add(categoryTxt);
+        formArea.add(dateLbl);
+        formArea.add(dateTxt);
+        formArea.add(sumLbl);
+        formArea.add(sumTxt);
+        formArea.add(submitBtn);
+
+        contentPanel.add("Center", formArea);
+
+        ActionListener updateAction = new ActionListener() {
+            public void actionPerformed(ActionEvent event) {
+                String description = descriptionTxt.getText();
+                String category = categoryTxt.getText();
+                String date = dateTxt.getText();
+                String sum = sumTxt.getText();
+                String[] newInfo = {description, category, date, sum};
+                try {
+                    expense.update(id, newInfo);
+                } catch (Exception e) {}
+            }
+        };
+        submitBtn.addActionListener(updateAction);
+    }
+
+    public void updateIncome(int id) {
+        title.setText("New income");
+        contentPanel.removeAll();
+        frame.setSize(500, 300);
+
+        String description = "";
+        String strDate = "";
+        String strSum = "";
+
+        try {
+            rs = income.getByID(id);
+        } catch (Exception e) {}
+        try {
+            while(rs.next()) {
+                description = rs.getString("description");
+
+                Date date = rs.getDate("date");
+                DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                strDate = dateFormat.format(date);
+
+                double sum = rs.getDouble("sum");
+                strSum=Double.toString(sum);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        JPanel formArea = new JPanel();
+        formArea.setLayout(new GridLayout(7,1,0,0));
+
+        JLabel descriptionLbl = new JLabel("Description");
+        JTextField descriptionTxt = new JTextField(description);
+
+        JLabel dateLbl = new JLabel("Date (MM/DD/YYYY)");
+        JTextField dateTxt = new JTextField(strDate);
+
+        JLabel sumLbl = new JLabel("Cost");
+        JTextField sumTxt = new JTextField(strSum);
+
+        JButton submitBtn = new JButton("Update Income");
+
+        formArea.add(descriptionLbl);
+        formArea.add(descriptionTxt);
+        formArea.add(dateLbl);
+        formArea.add(dateTxt);
+        formArea.add(sumLbl);
+        formArea.add(sumTxt);
+        formArea.add(submitBtn);
+
+        contentPanel.add("Center", formArea);
+
+        ActionListener updateAction = new ActionListener() {
+            public void actionPerformed(ActionEvent event) {
+                String description = descriptionTxt.getText();
+                String date = dateTxt.getText();
+                String sum = sumTxt.getText();
+                String[] newInfo = {description, date, sum};
+                try {
+                    income.update(id, newInfo);
+                } catch (Exception e) {}
+            }
+        };
+        submitBtn.addActionListener(updateAction);
     }
 
     public void reportsPage() {
@@ -619,38 +679,36 @@ public class GUI implements IView {
         frame.setSize(500, 250);
 
         JPanel formArea = new JPanel();
-        formArea.setLayout(new GridLayout(3,1,0,0));
-        JPanel firstDateArea = new JPanel();
-        firstDateArea.setLayout(new GridLayout(2,1,0,0));
-        JPanel secondDateArea = new JPanel();
-        secondDateArea.setLayout(new GridLayout(2,1,0,0));
+        formArea.setLayout(new GridLayout(5,1,0,0));
+        formArea.setBackground(Color.lightGray);
+
         JPanel buttonsArea = new JPanel();
+        buttonsArea.setLayout(new GridLayout(1,2,0,0));
 
         JLabel firstDateLbl = new JLabel("First Date (MM/DD/YYYY)");
-        JTextField firstDate = new JTextField();
-        firstDateArea.add(firstDateLbl);
-        firstDateArea.add(firstDate);
+        JTextField firstDateTxt = new JTextField();
+
         JLabel secondDateLbl = new JLabel("Second Date (MM/DD/YYYY)");
-        JTextField secondDate = new JTextField();
-        secondDateArea.add(secondDateLbl);
-        secondDateArea.add(secondDate);
+        JTextField secondDateTxt = new JTextField();
 
         JButton listReport = new JButton("List Report");
         JButton pieChartReport = new JButton("Pie Chart Report");
         buttonsArea.add(listReport);
         buttonsArea.add(pieChartReport);
 
-        formArea.setBackground(Color.lightGray);
-        formArea.add(firstDateArea);
-        formArea.add(secondDateArea);
+        formArea.add(firstDateLbl);
+        formArea.add(firstDateTxt);
+        formArea.add(secondDateLbl);
+        formArea.add(secondDateTxt);
         formArea.add(buttonsArea);
+
         contentPanel.add("Center", formArea);
 
         ActionListener listAction = new ActionListener() {
             public void actionPerformed(ActionEvent event) {
                 try {
-                    String date1 = firstDate.getText();
-                    String date2 = secondDate.getText();
+                    String date1 = firstDateTxt.getText();
+                    String date2 = secondDateTxt.getText();
                     Map<String, Double> reportMap = reports.report(date1, date2);
                     listReportPage(reportMap);
                 } catch (Exception e) {}
@@ -661,8 +719,8 @@ public class GUI implements IView {
         ActionListener pieChartAction = new ActionListener() {
             public void actionPerformed(ActionEvent event) {
                 try {
-                    String date1 = firstDate.getText();
-                    String date2 = secondDate.getText();
+                    String date1 = firstDateTxt.getText();
+                    String date2 = secondDateTxt.getText();
                     Map<String, Double> reportMap = reports.report(date1, date2);
                     pieChartReportPage(reportMap);
                 } catch (Exception e) {}
