@@ -180,14 +180,14 @@ public class DerbyDB implements DB {
             statement.execute(query);
             return true;
         } catch(SQLException se) {
-                if ("23505".equals(se.getSQLState())) {
-                    throw new CostManagerException ("This category exists already", se);
-                    //return true;
-                } else {
-                    se.printStackTrace();
-                    throw new CostManagerException ("false", se);
-                    //return false;
-                }
+            if ("23505".equals(se.getSQLState())) {
+                throw new CostManagerException ("This category exists already", se);
+                //return true;
+            } else {
+                se.printStackTrace();
+                throw new CostManagerException ("false", se);
+                //return false;
+            }
         }
     }
 }

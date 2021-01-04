@@ -10,6 +10,7 @@ import java.sql.Date;
 import java.sql.ResultSet;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Map;
 
 public class GUI implements IView {
@@ -145,7 +146,7 @@ public class GUI implements IView {
         frame.setSize(600, height);
         JPanel buttonSection = new JPanel();
         buttonSection.setBounds(30, 40, 200, 300);
-        buttonSection.setLayout(new GridLayout(count+1,1,0,0));
+        buttonSection.setLayout(new GridLayout(count+1,1,1,1));
 
         String[][] table = new String[count+1][];
         String[] columnNames = { "NO.", "DESCRIPTION", "CATEGORY", "DATE", "SUM" };
@@ -228,7 +229,7 @@ public class GUI implements IView {
         frame.setSize(500, height);
         JPanel buttonSection = new JPanel();
         buttonSection.setBounds(30, 40, 200, 300);
-        buttonSection.setLayout(new GridLayout(count+1,1,0,0));
+        buttonSection.setLayout(new GridLayout(count+1,1,1,1));
 
         String[][] table = new String[count+1][];
         String[] columnNames = { "NO.", "DESCRIPTION", "DATE", "SUM" };
@@ -339,7 +340,7 @@ public class GUI implements IView {
                 categoryLbl.setText(catName);
 
                 Date date = rs.getDate("date");
-                DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                 String strDate = dateFormat.format(date);
                 dateLbl.setText(strDate);
 
@@ -363,7 +364,7 @@ public class GUI implements IView {
                 try {
                     expense.delete(id);
                 } catch (Exception e) {}
-
+                expensePage();
             }
         };
         deleteItem.addActionListener(deleteAction);
@@ -411,7 +412,7 @@ public class GUI implements IView {
                 nameLbl.setText(description);
 
                 Date date = rs.getDate("date");
-                DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                 String strDate = dateFormat.format(date);
                 dateLbl.setText(strDate);
 
@@ -435,6 +436,7 @@ public class GUI implements IView {
                 try {
                     income.delete(id);
                 } catch (Exception e) {}
+                incomePage();
             }
         };
         deleteItem.addActionListener(deleteAction);
@@ -453,10 +455,30 @@ public class GUI implements IView {
         JLabel descriptionLbl = new JLabel("Description");
         JTextField descriptionTxt = new JTextField();
 
-        JLabel categoryLbl = new JLabel("Category");
-        JTextField categoryTxt = new JTextField();
+        ArrayList<String> categorySelectOptions = new ArrayList<String>();
+        try {
+            rs = category.getAll();
+        } catch (Exception e) {}
+        try {
+            while (rs.next()) {
+                categorySelectOptions.add(rs.getString("name"));
+            }
+        } catch (Exception e) {}
 
-        JLabel dateLbl = new JLabel("Date (MM/DD/YYYY)");
+        String[] categorySelections = categorySelectOptions.toArray(new String[categorySelectOptions.size()]);
+
+        JList categoryList = new JList(categorySelections);
+
+        JLabel categoryLbl = new JLabel("Category");
+        JPanel categorySection = new JPanel();
+        categorySection.setLayout(new GridLayout(1, 2, 0, 0));
+        JScrollPane scrollPane = new JScrollPane();
+        scrollPane.setViewportView(categoryList);
+        categorySection.add(scrollPane);
+        JButton newCategoryBtn = new JButton("Add new category");
+        categorySection.add(newCategoryBtn);
+
+        JLabel dateLbl = new JLabel("Date (YYYY-MM-DD)");
         JTextField dateTxt = new JTextField();
 
         JLabel sumLbl = new JLabel("Cost");
@@ -467,7 +489,7 @@ public class GUI implements IView {
         formArea.add(descriptionLbl);
         formArea.add(descriptionTxt);
         formArea.add(categoryLbl);
-        formArea.add(categoryTxt);
+        formArea.add(categorySection);
         formArea.add(dateLbl);
         formArea.add(dateTxt);
         formArea.add(sumLbl);
@@ -476,13 +498,20 @@ public class GUI implements IView {
 
         contentPanel.add("Center", formArea);
 
+        ActionListener addCategoryAction = new ActionListener() {
+            public void actionPerformed(ActionEvent event) {
+                addCategory();
+            }
+        };
+        newCategoryBtn.addActionListener(addCategoryAction);
+
         ActionListener addAction = new ActionListener() {
             public void actionPerformed(ActionEvent event) {
                 String description = descriptionTxt.getText();
-                String category = categoryTxt.getText();
-                String date = dateTxt.getText();
                 String sum = sumTxt.getText();
-                String[] newInfo = {description, category, date, sum};
+                String date = dateTxt.getText();
+                String category = (String) categoryList.getSelectedValue();
+                String[] newInfo = {description, sum, date, category};
                 try {
                     expense.add(newInfo);
                 } catch (Exception e) {}
@@ -504,7 +533,7 @@ public class GUI implements IView {
         JLabel descriptionLbl = new JLabel("Description");
         JTextField descriptionTxt = new JTextField();
 
-        JLabel dateLbl = new JLabel("Date (MM/DD/YYYY)");
+        JLabel dateLbl = new JLabel("Date (YYYY-MM-DD)");
         JTextField dateTxt = new JTextField();
 
         JLabel sumLbl = new JLabel("Cost");
@@ -525,14 +554,52 @@ public class GUI implements IView {
         ActionListener addAction = new ActionListener() {
             public void actionPerformed(ActionEvent event) {
                 String description = descriptionTxt.getText();
-                String date = dateTxt.getText();
                 String sum = sumTxt.getText();
-                String[] newInfo = {description, date, sum};
+                String date = dateTxt.getText();
+                String[] newInfo = {description, sum, date};
                 try {
                     income.add(newInfo);
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    System.out.println(e);
+                }
 
                 incomePage();
+            }
+        };
+        submitBtn.addActionListener(addAction);
+    }
+
+    public void addCategory() {
+        title.setText("New Category");
+        contentPanel.removeAll();
+        frame.setSize(500, 200);
+
+        JPanel formArea = new JPanel();
+        formArea.setLayout(new GridLayout(3,1,0,0));
+
+        JLabel nameLbl = new JLabel("Name");
+        JTextField nameTxt = new JTextField();
+
+        JButton submitBtn = new JButton("Add Category");
+
+        formArea.add(nameLbl);
+        formArea.add(nameTxt);
+        formArea.add(submitBtn);
+
+        contentPanel.add("Center", formArea);
+
+        ActionListener addAction = new ActionListener() {
+            public void actionPerformed(ActionEvent event) {
+                String name = nameTxt.getText();
+                String[] newInfo = {name};
+                try {
+                    category.add(newInfo);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    System.out.println(e);
+                }
+                addExpense();
             }
         };
         submitBtn.addActionListener(addAction);
@@ -544,7 +611,7 @@ public class GUI implements IView {
         frame.setSize(500, 350);
 
         String description = "";
-        String category = "";
+        String categoryStr = "";
         String strDate = "";
         String strSum = "";
 
@@ -555,10 +622,10 @@ public class GUI implements IView {
             while(rs.next()) {
                 description = rs.getString("description");
 
-                category = rs.getString("category");
+                categoryStr = rs.getString("category");
 
                 Date date = rs.getDate("date");
-                DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                 strDate = dateFormat.format(date);
 
                 double sum = rs.getDouble("sum");
@@ -574,10 +641,27 @@ public class GUI implements IView {
         JLabel descriptionLbl = new JLabel("Description");
         JTextField descriptionTxt = new JTextField(description);
 
-        JLabel categoryLbl = new JLabel("Category");
-        JTextField categoryTxt = new JTextField(category);
+        ArrayList<String> categorySelectOptions = new ArrayList<String>();
+        try {
+            rs = category.getAll();
+        } catch (Exception e) {}
+        try {
+            while (rs.next()) {
+                categorySelectOptions.add(rs.getString("name"));
+            }
+        } catch (Exception e) {}
 
-        JLabel dateLbl = new JLabel("Date (MM/DD/YYYY)");
+        String[] categorySelections = categorySelectOptions.toArray(new String[categorySelectOptions.size()]);
+        JList categoryList = new JList(categorySelections);
+        int index = categorySelectOptions.indexOf(categoryStr);
+        categoryList.setSelectedIndex(index);
+
+        JLabel categoryLbl = new JLabel("Category");
+//        JTextField categoryTxt = new JTextField(category);
+        JScrollPane scrollPane = new JScrollPane();
+        scrollPane.setViewportView(categoryList);
+
+        JLabel dateLbl = new JLabel("Date (YYYY-MM-DD)");
         JTextField dateTxt = new JTextField(strDate);
 
         JLabel sumLbl = new JLabel("Cost");
@@ -588,7 +672,7 @@ public class GUI implements IView {
         formArea.add(descriptionLbl);
         formArea.add(descriptionTxt);
         formArea.add(categoryLbl);
-        formArea.add(categoryTxt);
+        formArea.add(scrollPane);
         formArea.add(dateLbl);
         formArea.add(dateTxt);
         formArea.add(sumLbl);
@@ -600,10 +684,10 @@ public class GUI implements IView {
         ActionListener updateAction = new ActionListener() {
             public void actionPerformed(ActionEvent event) {
                 String description = descriptionTxt.getText();
-                String category = categoryTxt.getText();
+                String category = (String) categoryList.getSelectedValue();
                 String date = dateTxt.getText();
                 String sum = sumTxt.getText();
-                String[] newInfo = {description, category, date, sum};
+                String[] newInfo = {description, sum, date, category};
                 try {
                     expense.update(id, newInfo);
                 } catch (Exception e) {}
@@ -667,17 +751,16 @@ public class GUI implements IView {
 
         ActionListener updateAction = new ActionListener() {
             public void actionPerformed(ActionEvent event) {
-                String[] newInfo = new String[3];
                 String description = descriptionTxt.getText();
                 String date = dateTxt.getText();
                 String sum = sumTxt.getText();
-                newInfo[0] = description;
-                newInfo[1] = date;
-                newInfo[2] = sum;
+                String[] newInfo = {description, sum, date};
+
                 try {
-                    income.update(id, newInfo);
+                  boolean test = income.update(id, newInfo);
+                  System.out.println(test);
                 } catch (Exception e) {
-                    System.out.println(e);
+                    System.out.println("updateAction VIEW: "+e);
                 }
                 incomePage();
             }
@@ -697,10 +780,10 @@ public class GUI implements IView {
         JPanel buttonsArea = new JPanel();
         buttonsArea.setLayout(new GridLayout(1,2,0,0));
 
-        JLabel firstDateLbl = new JLabel("First Date (MM/DD/YYYY)");
+        JLabel firstDateLbl = new JLabel("First Date (YYYY-MM-DD)");
         JTextField firstDateTxt = new JTextField();
 
-        JLabel secondDateLbl = new JLabel("Second Date (MM/DD/YYYY)");
+        JLabel secondDateLbl = new JLabel("Second Date (YYYY-MM-DD)");
         JTextField secondDateTxt = new JTextField();
 
         JButton listReport = new JButton("List Report");
