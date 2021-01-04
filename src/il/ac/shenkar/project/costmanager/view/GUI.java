@@ -486,6 +486,8 @@ public class GUI implements IView {
                 try {
                     expense.add(newInfo);
                 } catch (Exception e) {}
+
+                expensePage();
             }
         };
         submitBtn.addActionListener(addAction);
@@ -529,6 +531,8 @@ public class GUI implements IView {
                 try {
                     income.add(newInfo);
                 } catch (Exception e) {}
+
+                incomePage();
             }
         };
         submitBtn.addActionListener(addAction);
@@ -603,6 +607,7 @@ public class GUI implements IView {
                 try {
                     expense.update(id, newInfo);
                 } catch (Exception e) {}
+                expensePage();
             }
         };
         submitBtn.addActionListener(updateAction);
@@ -625,7 +630,8 @@ public class GUI implements IView {
                 description = rs.getString("description");
 
                 Date date = rs.getDate("date");
-                DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                System.out.println(date);
+                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                 strDate = dateFormat.format(date);
 
                 double sum = rs.getDouble("sum");
@@ -641,7 +647,7 @@ public class GUI implements IView {
         JLabel descriptionLbl = new JLabel("Description");
         JTextField descriptionTxt = new JTextField(description);
 
-        JLabel dateLbl = new JLabel("Date (MM/DD/YYYY)");
+        JLabel dateLbl = new JLabel("Date (YYYY-MM-DD)");
         JTextField dateTxt = new JTextField(strDate);
 
         JLabel sumLbl = new JLabel("Cost");
@@ -661,13 +667,19 @@ public class GUI implements IView {
 
         ActionListener updateAction = new ActionListener() {
             public void actionPerformed(ActionEvent event) {
+                String[] newInfo = new String[3];
                 String description = descriptionTxt.getText();
                 String date = dateTxt.getText();
                 String sum = sumTxt.getText();
-                String[] newInfo = {description, date, sum};
+                newInfo[0] = description;
+                newInfo[1] = date;
+                newInfo[2] = sum;
                 try {
                     income.update(id, newInfo);
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                    System.out.println(e);
+                }
+                incomePage();
             }
         };
         submitBtn.addActionListener(updateAction);
