@@ -1,7 +1,5 @@
 package il.ac.shenkar.project.costmanager.view;
-
-import il.ac.shenkar.project.costmanager.model.*;
-import org.apache.derby.client.am.stmtcache.JDBCStatementCache;
+import il.ac.shenkar.project.costmanager.viewmodel.ViewModel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,32 +11,23 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class GUI implements IView {
-    private JFrame frame;
-    private JButton expenseBtn, incomeBtn, reportBtn, homeBtn;
-    private JLabel title;
-    private JPanel panelBottom, panelTop, contentPanel;
+public class View implements IView {
+    private final JFrame frame;
+    private final JLabel title;
+    private final JPanel contentPanel;
 
-    private DerbyDB dataBase;
     private ResultSet rs;
-    private Expense expense;
-    private Income income;
-    private Category category;
-    private Reports reports;
+    private ViewModel viewModel;
 
-    public GUI() {
-        try {
-            dataBase = new DerbyDB();
-        } catch (Exception e) {}
+    public void setViewModel(ViewModel vm) {
+        viewModel = vm;
+    }
+
+    public View(ViewModel vm) {
+        setViewModel(vm);
         rs = null;
-        expense = new Expense(dataBase);
-        income = new Income(dataBase);
-        category = new Category(dataBase);
-        reports = new Reports(category, expense, income);
-
 
         frame = new JFrame("Cost Manager");
-
         frame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent event) {
                 frame.setVisible(false);
@@ -47,12 +36,12 @@ public class GUI implements IView {
             }
         });
 
-        expenseBtn = new JButton("Expenses");
-        incomeBtn = new JButton("Incomes");
-        reportBtn = new JButton("Reports");
-        homeBtn = new JButton("Home");
-        panelBottom = new JPanel();
-        panelTop = new JPanel();
+        JButton expenseBtn = new JButton("Expenses");
+        JButton incomeBtn = new JButton("Incomes");
+        JButton reportBtn = new JButton("Reports");
+        JButton homeBtn = new JButton("Home");
+        JPanel panelBottom = new JPanel();
+        JPanel panelTop = new JPanel();
         contentPanel = new JPanel();
         title = new JLabel();
 
@@ -73,35 +62,19 @@ public class GUI implements IView {
         panelTop.add(reportBtn);
         panelBottom.add("North", title);
         panelBottom.add(contentPanel);
-        container.add("North",panelTop);
-        container.add("Center",panelBottom);
+        container.add("North", panelTop);
+        container.add("Center", panelBottom);
 
-        ActionListener homeAction = new ActionListener() {
-            public void actionPerformed(ActionEvent event) {
-                homePage();
-            }
-        };
+        ActionListener homeAction = event -> homePage();
         homeBtn.addActionListener(homeAction);
 
-        ActionListener expenseAction = new ActionListener() {
-            public void actionPerformed(ActionEvent event) {
-                expensePage();
-            }
-        };
+        ActionListener expenseAction = event -> expensePage();
         expenseBtn.addActionListener(expenseAction);
 
-        ActionListener incomeAction = new ActionListener() {
-            public void actionPerformed(ActionEvent event) {
-                incomePage();
-            }
-        };
+        ActionListener incomeAction = event -> incomePage();
         incomeBtn.addActionListener(incomeAction);
 
-        ActionListener reportAction = new ActionListener() {
-            public void actionPerformed(ActionEvent event) {
-                reportsPage();
-            }
-        };
+        ActionListener reportAction = event -> reportsPage();
         reportBtn.addActionListener(reportAction);
 
         homePage();
@@ -119,9 +92,7 @@ public class GUI implements IView {
         JLabel balance = new JLabel();
         contentPanel.add("North", balance);
         double balanceValue = 0;
-        try {
-            balanceValue = reports.balance();
-        } catch (Exception e) {}
+        balanceValue = viewModel.getBalance();
 
         String sign = "+";
         if (balanceValue < 0)
@@ -132,34 +103,31 @@ public class GUI implements IView {
     public void expensePage() {
         title.setText("Expenses");
         contentPanel.removeAll();
-
         int count = 0;
-        try {
-            rs = expense.getCount();
-        } catch (Exception e) {}
+        rs = viewModel.getExpenseCount();
         try {
             while (rs.next())
                 count = rs.getInt(1);
-        } catch (Exception e){
+        } catch (Exception e) {
+            System.out.println("error");
         }
-        int height = 130 + count*16;
+        int height = 130 + count * 16;
         frame.setSize(600, height);
         JPanel buttonSection = new JPanel();
         buttonSection.setBounds(30, 40, 200, 300);
-        buttonSection.setLayout(new GridLayout(count+1,1,1,1));
+        buttonSection.setLayout(new GridLayout(count + 1, 1, 1, 1));
 
-        String[][] table = new String[count+1][];
-        String[] columnNames = { "NO.", "DESCRIPTION", "CATEGORY", "DATE", "SUM" };
+        String[][] table = new String[count + 1][];
+        String[] columnNames = {"NO.", "DESCRIPTION", "CATEGORY", "DATE", "SUM"};
         table[0] = columnNames;
         int index = 1;
         JPanel btnPlaceholder = new JPanel();
         btnPlaceholder.setBackground(Color.lightGray);
         buttonSection.add(btnPlaceholder);
+        rs = viewModel.getExpenses();
+
         try {
-            rs = expense.getAll();
-        } catch (Exception e) {}
-        try {
-            while(rs.next()) {
+            while (rs.next()) {
                 String[] row = new String[5];
                 row[0] = (String.valueOf(index));
 
@@ -178,18 +146,14 @@ public class GUI implements IView {
                 int id = rs.getInt("id");
                 JButton viewBtn = new JButton("View");
                 buttonSection.add(viewBtn);
-                ActionListener viewAction = new ActionListener() {
-                    public void actionPerformed(ActionEvent event) {
-                        expenseViewPage(id);
-                    }
-                };
+                ActionListener viewAction = event -> expenseViewPage(id);
                 viewBtn.addActionListener(viewAction);
 
                 table[index] = row;
                 index += 1;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("error");
         }
 
         JTable expenseList = new JTable(table, columnNames);
@@ -201,38 +165,30 @@ public class GUI implements IView {
         JButton addExpenseBtn = new JButton("Add New Expense");
         contentPanel.add("South", addExpenseBtn);
 
-        ActionListener addAction = new ActionListener() {
-            public void actionPerformed(ActionEvent event) {
-                try {
-                    addExpense();
-                } catch (Exception e) {}
-            }
-        };
+        ActionListener addAction = event -> addExpense();
         addExpenseBtn.addActionListener(addAction);
     }
 
     public void incomePage() {
         title.setText("Incomes");
         contentPanel.removeAll();
-
         int count = 0;
-        try {
-            rs = income.getCount();
-        } catch (Exception e) {}
-
+        rs = viewModel.getIncomeCount();
         try {
             while (rs.next())
                 count = rs.getInt(1);
-        } catch (Exception e){
+        } catch (Exception e) {
+            System.out.println("error");
         }
-        int height = 130 + count*16;
+
+        int height = 130 + count * 16;
         frame.setSize(500, height);
         JPanel buttonSection = new JPanel();
         buttonSection.setBounds(30, 40, 200, 300);
-        buttonSection.setLayout(new GridLayout(count+1,1,1,1));
+        buttonSection.setLayout(new GridLayout(count + 1, 1, 1, 1));
 
-        String[][] table = new String[count+1][];
-        String[] columnNames = { "NO.", "DESCRIPTION", "DATE", "SUM" };
+        String[][] table = new String[count + 1][];
+        String[] columnNames = {"NO.", "DESCRIPTION", "DATE", "SUM"};
         table[0] = columnNames;
 
         JPanel btnPlaceholder = new JPanel();
@@ -240,11 +196,10 @@ public class GUI implements IView {
         buttonSection.add(btnPlaceholder);
 
         int index = 1;
+        rs = viewModel.getIncomes();
+
         try {
-            rs = income.getAll();
-        } catch (Exception e) {}
-        try {
-            while(rs.next()) {
+            while (rs.next()) {
                 String[] row = new String[4];
                 row[0] = (String.valueOf(index));
 
@@ -260,11 +215,7 @@ public class GUI implements IView {
                 int id = rs.getInt("id");
                 JButton viewBtn = new JButton("View");
                 buttonSection.add(viewBtn);
-                ActionListener viewAction = new ActionListener() {
-                    public void actionPerformed(ActionEvent event) {
-                        incomeViewPage(id);
-                    }
-                };
+                ActionListener viewAction = event -> incomeViewPage(id);
                 viewBtn.addActionListener(viewAction);
 
 
@@ -272,7 +223,7 @@ public class GUI implements IView {
                 index += 1;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("error");
         }
 
         JTable incomeList = new JTable(table, columnNames);
@@ -283,17 +234,11 @@ public class GUI implements IView {
         JButton addIncomeBtn = new JButton("Add New Income");
         contentPanel.add("South", addIncomeBtn);
 
-        ActionListener addAction = new ActionListener() {
-            public void actionPerformed(ActionEvent event) {
-                try {
-                    addIncome();
-                } catch (Exception e) {}
-            }
-        };
+        ActionListener addAction = event -> addIncome();
         addIncomeBtn.addActionListener(addAction);
     }
 
-    public void expenseViewPage(int id){
+    public void expenseViewPage(int id) {
         contentPanel.removeAll();
         frame.setSize(600, 180);
 
@@ -308,30 +253,28 @@ public class GUI implements IView {
         itemPanel.add(nameLbl);
         itemPanel.add(categoryLbl);
         itemPanel.add(dateLbl);
-        itemPanel.add( sumLbl);
+        itemPanel.add(sumLbl);
 
         JButton editItem = new JButton("Edit");
         JButton deleteItem = new JButton("Delete");
 
         JPanel btnPanel = new JPanel();
-        btnPanel.setLayout(new GridLayout(2,1,0,0));
+        btnPanel.setLayout(new GridLayout(2, 1, 0, 0));
 
         btnPanel.add(editItem);
         btnPanel.add(deleteItem);
 
         JPanel infoSection = new JPanel();
-        itemPanel.setLayout(new GridLayout(4,2,0,0));
+        itemPanel.setLayout(new GridLayout(4, 2, 0, 0));
 
         infoSection.add(itemPanel);
         infoSection.add(btnPanel);
 
         contentPanel.add(infoSection);
+        rs = viewModel.getExpense(id);
 
         try {
-            rs = expense.getByID(id);
-        } catch (Exception e) {}
-        try {
-            while(rs.next()) {
+            while (rs.next()) {
                 String description = rs.getString("description");
                 title.setText(description);
                 nameLbl.setText(description);
@@ -345,32 +288,24 @@ public class GUI implements IView {
                 dateLbl.setText(strDate);
 
                 double sum = rs.getDouble("sum");
-                String strSum=Double.toString(sum);
+                String strSum = Double.toString(sum);
                 sumLbl.setText(strSum);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        ActionListener editAction = new ActionListener() {
-            public void actionPerformed(ActionEvent event) {
-                updateExpense(id);
-            }
-        };
+        ActionListener editAction = event -> updateExpense(id);
         editItem.addActionListener(editAction);
 
-        ActionListener deleteAction = new ActionListener() {
-            public void actionPerformed(ActionEvent event) {
-                try {
-                    expense.delete(id);
-                } catch (Exception e) {}
-                expensePage();
-            }
+        ActionListener deleteAction = event -> {
+            viewModel.deleteExpense(id);
+            expensePage();
         };
         deleteItem.addActionListener(deleteAction);
     }
 
-    public void incomeViewPage(int id){
+    public void incomeViewPage(int id) {
         contentPanel.removeAll();
         frame.setSize(500, 160);
 
@@ -383,30 +318,29 @@ public class GUI implements IView {
 
         itemPanel.add(nameLbl);
         itemPanel.add(dateLbl);
-        itemPanel.add( sumLbl);
+        itemPanel.add(sumLbl);
 
         JButton editItem = new JButton("Edit");
         JButton deleteItem = new JButton("Delete");
 
         JPanel btnPanel = new JPanel();
-        btnPanel.setLayout(new GridLayout(2,1,0,0));
+        btnPanel.setLayout(new GridLayout(2, 1, 0, 0));
 
         btnPanel.add(editItem);
         btnPanel.add(deleteItem);
 
         JPanel infoSection = new JPanel();
-        itemPanel.setLayout(new GridLayout(3,2,0,0));
+        itemPanel.setLayout(new GridLayout(3, 2, 0, 0));
 
         infoSection.add(itemPanel);
         infoSection.add(btnPanel);
 
         contentPanel.add(infoSection);
 
+        rs = viewModel.getIncome(id);
+
         try {
-            rs = income.getByID(id);
-        } catch (Exception e) {}
-        try {
-            while(rs.next()) {
+            while (rs.next()) {
                 String description = rs.getString("description");
                 title.setText(description);
                 nameLbl.setText(description);
@@ -417,53 +351,44 @@ public class GUI implements IView {
                 dateLbl.setText(strDate);
 
                 double sum = rs.getDouble("sum");
-                String strSum=Double.toString(sum);
+                String strSum = Double.toString(sum);
                 sumLbl.setText(strSum);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        ActionListener editAction = new ActionListener() {
-            public void actionPerformed(ActionEvent event) {
-                updateIncome(id);
-            }
-        };
+        ActionListener editAction = event -> updateIncome(id);
         editItem.addActionListener(editAction);
 
-        ActionListener deleteAction = new ActionListener() {
-            public void actionPerformed(ActionEvent event) {
-                try {
-                    income.delete(id);
-                } catch (Exception e) {}
-                incomePage();
-            }
+        ActionListener deleteAction = event -> {
+            viewModel.deleteIncome(id);
+            incomePage();
         };
         deleteItem.addActionListener(deleteAction);
     }
 
     public void addExpense() {
         title.setText("New Expense");
-//        title.setFont(new Font("Comic Sans MS", Font.PLAIN, 20));
 
         contentPanel.removeAll();
         frame.setSize(500, 350);
 
         JPanel formArea = new JPanel();
-        formArea.setLayout(new GridLayout(9,1,0,0));
+        formArea.setLayout(new GridLayout(9, 1, 0, 0));
 
         JLabel descriptionLbl = new JLabel("Description");
         JTextField descriptionTxt = new JTextField();
 
-        ArrayList<String> categorySelectOptions = new ArrayList<String>();
-        try {
-            rs = category.getAll();
-        } catch (Exception e) {}
+        ArrayList<String> categorySelectOptions = new ArrayList<>();
+        rs = viewModel.getCategories();
         try {
             while (rs.next()) {
                 categorySelectOptions.add(rs.getString("name"));
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            System.out.println("error");
+        }
 
         String[] categorySelections = categorySelectOptions.toArray(new String[categorySelectOptions.size()]);
 
@@ -498,26 +423,18 @@ public class GUI implements IView {
 
         contentPanel.add("Center", formArea);
 
-        ActionListener addCategoryAction = new ActionListener() {
-            public void actionPerformed(ActionEvent event) {
-                addCategory();
-            }
-        };
+        ActionListener addCategoryAction = event -> addCategory();
         newCategoryBtn.addActionListener(addCategoryAction);
 
-        ActionListener addAction = new ActionListener() {
-            public void actionPerformed(ActionEvent event) {
-                String description = descriptionTxt.getText();
-                String sum = sumTxt.getText();
-                String date = dateTxt.getText();
-                String category = (String) categoryList.getSelectedValue();
-                String[] newInfo = {description, sum, date, category};
-                try {
-                    expense.add(newInfo);
-                } catch (Exception e) {}
+        ActionListener addAction = event -> {
+            String description = descriptionTxt.getText();
+            String sum = sumTxt.getText();
+            String date = dateTxt.getText();
+            String category = (String) categoryList.getSelectedValue();
+            String[] newInfo = {description, sum, date, category};
+            viewModel.addExpense(newInfo);
 
-                expensePage();
-            }
+            expensePage();
         };
         submitBtn.addActionListener(addAction);
     }
@@ -528,7 +445,7 @@ public class GUI implements IView {
         frame.setSize(500, 300);
 
         JPanel formArea = new JPanel();
-        formArea.setLayout(new GridLayout(7,1,0,0));
+        formArea.setLayout(new GridLayout(7, 1, 0, 0));
 
         JLabel descriptionLbl = new JLabel("Description");
         JTextField descriptionTxt = new JTextField();
@@ -551,21 +468,14 @@ public class GUI implements IView {
 
         contentPanel.add("Center", formArea);
 
-        ActionListener addAction = new ActionListener() {
-            public void actionPerformed(ActionEvent event) {
-                String description = descriptionTxt.getText();
-                String sum = sumTxt.getText();
-                String date = dateTxt.getText();
-                String[] newInfo = {description, sum, date};
-                try {
-                    income.add(newInfo);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    System.out.println(e);
-                }
+        ActionListener addAction = event -> {
+            String description = descriptionTxt.getText();
+            String sum = sumTxt.getText();
+            String date = dateTxt.getText();
+            String[] newInfo = {description, sum, date};
+            viewModel.addIncome(newInfo);
 
-                incomePage();
-            }
+            incomePage();
         };
         submitBtn.addActionListener(addAction);
     }
@@ -576,7 +486,7 @@ public class GUI implements IView {
         frame.setSize(500, 200);
 
         JPanel formArea = new JPanel();
-        formArea.setLayout(new GridLayout(3,1,0,0));
+        formArea.setLayout(new GridLayout(3, 1, 0, 0));
 
         JLabel nameLbl = new JLabel("Name");
         JTextField nameTxt = new JTextField();
@@ -589,18 +499,11 @@ public class GUI implements IView {
 
         contentPanel.add("Center", formArea);
 
-        ActionListener addAction = new ActionListener() {
-            public void actionPerformed(ActionEvent event) {
-                String name = nameTxt.getText();
-                String[] newInfo = {name};
-                try {
-                    category.add(newInfo);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    System.out.println(e);
-                }
-                addExpense();
-            }
+        ActionListener addAction = event -> {
+            String name = nameTxt.getText();
+            String[] newInfo = {name};
+            viewModel.addCategory(newInfo);
+            addExpense();
         };
         submitBtn.addActionListener(addAction);
     }
@@ -615,11 +518,10 @@ public class GUI implements IView {
         String strDate = "";
         String strSum = "";
 
+        rs = viewModel.getExpense(id);
+
         try {
-            rs = expense.getByID(id);
-        } catch (Exception e) {}
-        try {
-            while(rs.next()) {
+            while (rs.next()) {
                 description = rs.getString("description");
 
                 categoryStr = rs.getString("category");
@@ -629,27 +531,27 @@ public class GUI implements IView {
                 strDate = dateFormat.format(date);
 
                 double sum = rs.getDouble("sum");
-                strSum=Double.toString(sum);
+                strSum = Double.toString(sum);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("error");
         }
 
         JPanel formArea = new JPanel();
-        formArea.setLayout(new GridLayout(9,1,0,0));
+        formArea.setLayout(new GridLayout(9, 1, 0, 0));
 
         JLabel descriptionLbl = new JLabel("Description");
         JTextField descriptionTxt = new JTextField(description);
 
         ArrayList<String> categorySelectOptions = new ArrayList<String>();
-        try {
-            rs = category.getAll();
-        } catch (Exception e) {}
+        rs = viewModel.getCategories();
         try {
             while (rs.next()) {
                 categorySelectOptions.add(rs.getString("name"));
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+            System.out.println("error");
+        }
 
         String[] categorySelections = categorySelectOptions.toArray(new String[categorySelectOptions.size()]);
         JList categoryList = new JList(categorySelections);
@@ -657,7 +559,6 @@ public class GUI implements IView {
         categoryList.setSelectedIndex(index);
 
         JLabel categoryLbl = new JLabel("Category");
-//        JTextField categoryTxt = new JTextField(category);
         JScrollPane scrollPane = new JScrollPane();
         scrollPane.setViewportView(categoryList);
 
@@ -681,18 +582,15 @@ public class GUI implements IView {
 
         contentPanel.add("Center", formArea);
 
-        ActionListener updateAction = new ActionListener() {
-            public void actionPerformed(ActionEvent event) {
-                String description = descriptionTxt.getText();
-                String category = (String) categoryList.getSelectedValue();
-                String date = dateTxt.getText();
-                String sum = sumTxt.getText();
-                String[] newInfo = {description, sum, date, category};
-                try {
-                    expense.update(id, newInfo);
-                } catch (Exception e) {}
-                expensePage();
-            }
+        ActionListener updateAction = event -> {
+            String description1 = descriptionTxt.getText();
+            String category = (String) categoryList.getSelectedValue();
+            String date = dateTxt.getText();
+            String sum = sumTxt.getText();
+            String[] newInfo = {description1, sum, date, category};
+            viewModel.editExpense(id, newInfo);
+
+            expensePage();
         };
         submitBtn.addActionListener(updateAction);
     }
@@ -706,11 +604,10 @@ public class GUI implements IView {
         String strDate = "";
         String strSum = "";
 
+        rs = viewModel.getIncome(id);
+
         try {
-            rs = income.getByID(id);
-        } catch (Exception e) {}
-        try {
-            while(rs.next()) {
+            while (rs.next()) {
                 description = rs.getString("description");
 
                 Date date = rs.getDate("date");
@@ -719,14 +616,14 @@ public class GUI implements IView {
                 strDate = dateFormat.format(date);
 
                 double sum = rs.getDouble("sum");
-                strSum=Double.toString(sum);
+                strSum = Double.toString(sum);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("error");
         }
 
         JPanel formArea = new JPanel();
-        formArea.setLayout(new GridLayout(7,1,0,0));
+        formArea.setLayout(new GridLayout(7, 1, 0, 0));
 
         JLabel descriptionLbl = new JLabel("Description");
         JTextField descriptionTxt = new JTextField(description);
@@ -749,21 +646,14 @@ public class GUI implements IView {
 
         contentPanel.add("Center", formArea);
 
-        ActionListener updateAction = new ActionListener() {
-            public void actionPerformed(ActionEvent event) {
-                String description = descriptionTxt.getText();
-                String date = dateTxt.getText();
-                String sum = sumTxt.getText();
-                String[] newInfo = {description, sum, date};
+        ActionListener updateAction = event -> {
+            String description1 = descriptionTxt.getText();
+            String date = dateTxt.getText();
+            String sum = sumTxt.getText();
+            String[] newInfo = {description1, sum, date};
+            viewModel.editIncome(id, newInfo);
 
-                try {
-                  boolean test = income.update(id, newInfo);
-                  System.out.println(test);
-                } catch (Exception e) {
-                    System.out.println("updateAction VIEW: "+e);
-                }
-                incomePage();
-            }
+            incomePage();
         };
         submitBtn.addActionListener(updateAction);
     }
@@ -774,11 +664,11 @@ public class GUI implements IView {
         frame.setSize(500, 250);
 
         JPanel formArea = new JPanel();
-        formArea.setLayout(new GridLayout(5,1,0,0));
+        formArea.setLayout(new GridLayout(5, 1, 0, 0));
         formArea.setBackground(Color.lightGray);
 
         JPanel buttonsArea = new JPanel();
-        buttonsArea.setLayout(new GridLayout(1,2,0,0));
+        buttonsArea.setLayout(new GridLayout(1, 2, 0, 0));
 
         JLabel firstDateLbl = new JLabel("First Date (YYYY-MM-DD)");
         JTextField firstDateTxt = new JTextField();
@@ -799,28 +689,19 @@ public class GUI implements IView {
 
         contentPanel.add("Center", formArea);
 
-        ActionListener listAction = new ActionListener() {
-            public void actionPerformed(ActionEvent event) {
-                try {
-                    String date1 = firstDateTxt.getText();
-                    String date2 = secondDateTxt.getText();
-                    Map<String, Double> reportMap = reports.report(date1, date2);
-                    listReportPage(reportMap);
-                } catch (Exception e) {}
-            }
+        ActionListener listAction = event -> {
+            String date1 = firstDateTxt.getText();
+            String date2 = secondDateTxt.getText();
+            Map<String, Double> reportMap = viewModel.getReport(date1, date2);
+            listReportPage(reportMap);
         };
         listReport.addActionListener(listAction);
 
-        ActionListener pieChartAction = new ActionListener() {
-            public void actionPerformed(ActionEvent event) {
-                try {
-                    String date1 = firstDateTxt.getText();
-                    String date2 = secondDateTxt.getText();
-                    Map<String, Double> reportMap = reports.report(date1, date2);
-                    pieChartReportPage(reportMap);
-                } catch (Exception e) {}
-
-            }
+        ActionListener pieChartAction = event -> {
+            String date1 = firstDateTxt.getText();
+            String date2 = secondDateTxt.getText();
+            Map<String, Double> reportMap = viewModel.getReport(date1, date2);
+            pieChartReportPage(reportMap);
         };
         pieChartReport.addActionListener(pieChartAction);
     }
@@ -830,18 +711,18 @@ public class GUI implements IView {
         contentPanel.removeAll();
 
         int count = reportMap.size();
-        int height = 130 + count*16;
+        int height = 130 + count * 16;
         frame.setSize(600, height);
 
-        String[][] table = new String[count+1][];
-        String[] columnNames = { "CATEGORY", "SUM" };
+        String[][] table = new String[count + 1][];
+        String[] columnNames = {"CATEGORY", "SUM"};
         table[0] = columnNames;
         int index = 1;
         int j = 0;
         String[] categories = reportMap.keySet().toArray(new String[0]);
         Double[] sums = reportMap.values().toArray(new Double[0]);
 
-        while(index < count+1) {
+        while (index < count + 1) {
             table[index] = new String[2];
             table[index][0] = categories[j];
             table[index][1] = String.valueOf(sums[j]);
